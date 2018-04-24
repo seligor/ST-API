@@ -26,6 +26,7 @@ class st_auth:
         if request.status_code == 200:
             json_data = json.loads(request.content)
             return(json_data['secret_key'])
+            #   TODO:   delete all error handling - make expertion, client side must handle them itself
         elif request.status_code == 409:    #   TODO:   check if server already registered then check token
             #raise Exception(json.loads(request.content))
             print("Already registered. ", "Error:", str(request.status_code), json.loads(request.content))
