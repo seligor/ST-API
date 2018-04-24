@@ -82,10 +82,10 @@ class st_api_methods:
         "admin_console_version": "/services/update/admin_console",
 
         #   STATICTICS
-        "current_search_queries": "search_requests/current",
-        "current_fulltext_queries": "search_requests/current/ft",
-        "current_dict_queries": "search_requests/current/dict",
-        "current_dfp_queries": "search_requests/current/dfp",
+        "current_search_queries": "/search_requests/current",
+        "current_fulltext_queries": "/search_requests/current/ft",
+        "current_dict_queries": "/search_requests/current/dict",
+        "current_dfp_queries": "/search_requests/current/dfp",
         
         #   OTHER
         "upload": "/upload/",   # + name of collection
