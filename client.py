@@ -1,4 +1,4 @@
-#   Created by Anton Solovey, Falcongaze 2018 (c), a.solovey@falco3ngaze.ru
+#   Created by Anton Solovey, Falcongaze 2018 (c), a.solovey@falcongaze.ru
 
 import json
 import requests
