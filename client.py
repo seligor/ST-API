@@ -26,14 +26,11 @@ class st_auth:
         if request.status_code == 200:
             json_data = json.loads(request.content)
             return(json_data['secret_key'])
-            #   TODO:   delete all error handling - make expertion, client side must handle them itself
-        elif request.status_code == 409:    #   TODO:   check if server already registered then check token
-            #raise Exception(json.loads(request.content))
-            print("Already registered. ", "Error:", str(request.status_code), json.loads(request.content))
-        elif request.status_code == 403:
-            raise Exception("Registration rejected. " + json.loads(request.content))
         else:
-            print("Error: ", str(request.status_code), json.loads(request.content))
+            return("Error: ", str(request.status_code), json.loads(request.content))
+
+    def api_error_handler(self):
+        pass    #   TODO:   make API HTTP error codes and internal error codes handler
 
     def get_oauth_token(self):
 
@@ -73,3 +70,54 @@ class st_auth:
             print(json.loads(request.content), indent=3)
         else:
             print("Error: ", str(request.status_code), json.loads(request.content))
+
+class st_api_methods:
+    
+    RESOURCES = 
+    {
+        "collections": "/data/collections", 
+    }
+
+    COLLECTIONS = 
+    {
+        "smtp": "smtp",
+        "pop3": "pop3",
+        "imap": "imap",
+        "mapi": "mapi",
+        "ftp": "ftp",
+        "httpurls": "httpurls",
+        "httpreq": "httpreq",
+        "mailproc": "mailproc",
+        "printer": "printer",
+        "desktop": "desktop",
+        "clipboard": "clipboard",
+        "screenshots": "screenshots",
+        "browsers": "browsers",
+        "keylogger": "keylogger",
+        "devices": "devices",
+        "sharedfiles": "sharedfiles",
+        "cddvd": "cddvd",
+        "usbfiles": "usbfiles",
+        "cloudfiles": "cloudfiles",
+        "wsindexer": "wsindexer",
+        "webmsg": "webmsg",
+        "conversations": "conversations",      
+    }
+
+    HTTP_ERRORS = 
+    {
+        "304": "Not Modified",
+        "400": "Bad request",
+        "401": "Not authorized",
+        "403": "Fordidden",
+        "501": "Not implemented",        
+    }
+
+    ST_INT_API_ERRORS =
+    {
+        "5": "NotAuthenticated",            #   There is no header with bearer token or Basic not sucsessful
+        "7": "AccessForbidden",             #   There is no appropriate right on your token
+        "13": "UserTokenInvalid",           #   Token type is not supported
+        "14": "UserTokenExpired",           #   Token has been expired
+        "15": "UserTokenInvalidSignature",  #   Token digital signature is not valid
+    }
