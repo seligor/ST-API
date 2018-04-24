@@ -75,7 +75,20 @@ class st_api_methods:
     
     RESOURCES = 
     {
-        "collections": "/data/collections", 
+        "collections": "/data/collections",
+
+        "consoles_versions": "/services/update",
+        "client_console_version": "/services/update/client_console",
+        "admin_console_version": "/services/update/admin_console",
+
+        #   STATICTICS
+        "current_search_queries": "search_requests/current",
+        "current_fulltext_queries": "search_requests/current/ft",
+        "current_dict_queries": "search_requests/current/dict",
+        "current_dfp_queries": "search_requests/current/dfp",
+        
+        #   OTHER
+        "upload": "/upload/",   # + name of collection
     }
 
     COLLECTIONS = 
@@ -110,13 +123,15 @@ class st_api_methods:
         "400": "Bad request",
         "401": "Not authorized",
         "403": "Fordidden",
-        "501": "Not implemented",        
+        "501": "Not implemented",
+        "503": "Service unavailable",        
     }
 
     ST_INT_API_ERRORS =
     {
         "5": "NotAuthenticated",            #   There is no header with bearer token or Basic not sucsessful
         "7": "AccessForbidden",             #   There is no appropriate right on your token
+        "11": "Invalid upload rule",        #   Database not exits OR rotation group not exists
         "13": "UserTokenInvalid",           #   Token type is not supported
         "14": "UserTokenExpired",           #   Token has been expired
         "15": "UserTokenInvalidSignature",  #   Token digital signature is not valid
