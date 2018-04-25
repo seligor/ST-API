@@ -6,20 +6,17 @@ from requests.auth import HTTPBasicAuth
 
 #   Here we define some default constants
 
-ST_IP = "http://10.10.0.18:"
-ST_PORT = "9090"
 CLIENT_ID = "custom_service"
-CLIENT_HOST = "10.10.200.2"
 
 #   Classes
 
 class st_auth:
 
-    def server_register(self):      # User service register function
+    def server_register(self, st_ip, st_port, client_host):      # User service register function
 
-        register_url =  ST_IP + ST_PORT + "/api/v1/oauth2/register"
+        register_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/register"
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {'client_id': CLIENT_ID, 'client_host': CLIENT_HOST}
+        payload = {'client_id': CLIENT_ID, 'client_host': client_host}
         request = requests.post(register_url, headers=headers, data=payload)
 
         #   Check for HTTP 200 - if it's okay then return secret key
@@ -29,15 +26,15 @@ class st_auth:
         else:
             return("Error: ", str(request.status_code), json.loads(request.content))
 
-    def api_error_handler(self):
+    def api_error_handler(self, http_error_code, int_error_code):
         pass    #   TODO:   make API HTTP error codes and internal error codes handler
 
-    def get_oauth_token(self):
+    def get_oauth_token(self, st_ip, st_port, client_host):
 
-        token_url =  ST_IP + ST_PORT + "/api/v1/oauth2/token"
+        token_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/token"
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {'grant_type': 'client_credentials', 'client_host': CLIENT_HOST}
-        BASE64_CRED = HTTPBasicAuth(CLIENT_ID, self.server_register())
+        payload = {'grant_type': 'client_credentials', 'client_host': client_host}
+        BASE64_CRED = HTTPBasicAuth(CLIENT_ID, self.server_register(st_ip, st_port, client_host))
         #   TODO:   check if token already exists then use that token
         request = requests.post(token_url, auth=BASE64_CRED, data=payload, headers=headers)
 
@@ -51,8 +48,8 @@ class st_auth:
         else:
             print("Error: ", str(request.status_code), json.loads(request.content))
 
-    def request(self, token, resource_uri, http_method, http_payload=""):
-        request_url = ST_IP + ST_PORT + resource_uri
+    def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None):
+        request_url = "http://" + st_ip + ":" + st_port + resource_uri
         headers = {'Content-Type': "application/x-www-form-urlencoded",
                'Authorization': "Bearer " + token,
                }
@@ -71,10 +68,9 @@ class st_auth:
         else:
             print("Error: ", str(request.status_code), json.loads(request.content))
 
-class st_api_methods:
+class st_api:
     
-    RESOURCES = 
-    {
+    RESOURCES = {
         "collections": "/data/collections",
 
         "consoles_versions": "/services/update",
@@ -91,8 +87,7 @@ class st_api_methods:
         "upload": "/upload/",   # + name of collection
     }
 
-    COLLECTIONS = 
-    {
+    COLLECTIONS = {
         "smtp": "smtp",
         "pop3": "pop3",
         "imap": "imap",
@@ -117,8 +112,7 @@ class st_api_methods:
         "conversations": "conversations",      
     }
 
-    HTTP_ERRORS = 
-    {
+    HTTP_ERRORS = {
         "304": "Not Modified",
         "400": "Bad request",
         "401": "Not authorized",
@@ -127,8 +121,7 @@ class st_api_methods:
         "503": "Service unavailable",        
     }
 
-    ST_INT_API_ERRORS =
-    {
+    ST_INT_API_ERRORS = {
         "5": "NotAuthenticated",            #   There is no header with bearer token or Basic not sucsessful
         "7": "AccessForbidden",             #   There is no appropriate right on your token
         "11": "Invalid upload rule",        #   Database not exits OR rotation group not exists
