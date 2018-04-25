@@ -27,7 +27,21 @@ class st_auth:
             return("Error: ", str(request.status_code), json.loads(request.content))
 
     def api_error_handler(self, http_error_code, int_error_code):
-        pass    #   TODO:   make API HTTP error codes and internal error codes handler
+        # pass    #   TODO:   make API HTTP error codes and internal error codes handler
+        if http_error_code == 401 and int_error_code == 5:
+            return(st_api.ST_INT_API_ERRORS("5"))
+        elif http_error_code = 401 and int_error_code == 13:
+            return(st_api.ST_INT_API_ERRORS("13"))
+        elif http_error_code = 401 and int_error_code == 14:
+            return(st_api.ST_INT_API_ERRORS("14"))
+        elif http_error_code == 401 and int_error_code == 15:
+            return(st_api.ST_INT_API_ERRORS("15"))
+        elif http_error_code == 403 and int_error_code == 7:
+            return(st_api.ST_INT_API_ERRORS("7"))
+        #   Otherwise print an error
+        else: 
+            if http_error_code not in st_api.HTTP_ERRORS and int_error_code not in st_api.ST_INT_API_ERRORS
+            print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
 
     def get_oauth_token(self, st_ip, st_port, client_host):
 
@@ -43,7 +57,7 @@ class st_auth:
             return(json_data['access_token'])
         else:
             #print("Error: ", str(request.status_code), json.loads(request.content))
-            self.api_error_handler(request.status_code, request.content)
+            print(self.api_error_handler(request.status_code, request.content))
 
     def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None):
         request_url = "http://" + st_ip + ":" + st_port + resource_uri
@@ -116,13 +130,13 @@ class st_api:
         "403": "Fordidden",
         "501": "Not implemented",
         "503": "Service unavailable",        
-    }
+    }   #   Just FYI
 
     ST_INT_API_ERRORS = {
-        "5": "NotAuthenticated",            #   There is no header with bearer token or Basic not sucsessful
-        "7": "AccessForbidden",             #   There is no appropriate right on your token
-        "11": "Invalid upload rule",        #   Database not exits OR rotation group not exists
-        "13": "UserTokenInvalid",           #   Token type is not supported
-        "14": "UserTokenExpired",           #   Token has been expired
-        "15": "UserTokenInvalidSignature",  #   Token digital signature is not valid
+        "5": "NotAuthenticated. There is no header with bearer token or Basic not sucsessful.",
+        "7": "AccessForbidden. There is no appropriate right on your token.",
+        "11": "Invalid upload rule. Database not exits OR rotation group not exists.",
+        "13": "UserTokenInvalid. Token type is not supported.",
+        "14": "UserTokenExpired. Token has been expired.",
+        "15": "UserTokenInvalidSignature. Token digital signature is not valid.",
     }
