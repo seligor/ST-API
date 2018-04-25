@@ -38,15 +38,12 @@ class st_auth:
         #   TODO:   check if token already exists then use that token
         request = requests.post(token_url, auth=BASE64_CRED, data=payload, headers=headers)
 
-        
-        if request.status_code == 401:      #   Check for token expire
-            json_data = json.loads(request.content)
-            print(json_data['code'])
-        elif request.status_code == 200:    #   Check for HTTP 200 - if it's okay then return JWT token
+        if request.status_code == 200:    #   Check for HTTP 200 - if it's okay then return JWT token
             json_data = json.loads(request.content)
             return(json_data['access_token'])
         else:
-            print("Error: ", str(request.status_code), json.loads(request.content))
+            #print("Error: ", str(request.status_code), json.loads(request.content))
+            self.api_error_handler(request.status_code, request.content)
 
     def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None):
         request_url = "http://" + st_ip + ":" + st_port + resource_uri
