@@ -30,17 +30,16 @@ class st_auth:
         # pass    #   TODO:   make API HTTP error codes and internal error codes handler
         if http_error_code == 401 and int_error_code == 5:
             return(st_api.ST_INT_API_ERRORS("5"))
-        elif http_error_code = 401 and int_error_code == 13:
+        elif http_error_code == 401 and int_error_code == 13:
             return(st_api.ST_INT_API_ERRORS("13"))
-        elif http_error_code = 401 and int_error_code == 14:
+        elif http_error_code == 401 and int_error_code == 14:
             return(st_api.ST_INT_API_ERRORS("14"))
         elif http_error_code == 401 and int_error_code == 15:
             return(st_api.ST_INT_API_ERRORS("15"))
         elif http_error_code == 403 and int_error_code == 7:
             return(st_api.ST_INT_API_ERRORS("7"))
         #   Otherwise print an error
-        else: 
-            if http_error_code not in st_api.HTTP_ERRORS and int_error_code not in st_api.ST_INT_API_ERRORS
+        elif ((http_error_code not in st_api.HTTP_ERRORS) and (int_error_code not in st_api.ST_INT_API_ERRORS))
             print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
 
     def get_oauth_token(self, st_ip, st_port, client_host):
@@ -59,7 +58,8 @@ class st_auth:
             #print("Error: ", str(request.status_code), json.loads(request.content))
             print(self.api_error_handler(request.status_code, request.content))
 
-    def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None):
+    def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None, offset=None, limit=None):
+        #   TODO:   support offset and limit args
         request_url = "http://" + st_ip + ":" + st_port + resource_uri
         headers = {'Content-Type': "application/x-www-form-urlencoded",
                'Authorization': "Bearer " + token,
@@ -70,7 +70,7 @@ class st_auth:
         elif http_method == "POST":
             request = requests.post(request_url, headers=headers, data=http_payload)
         else:
-            raise Exception("HTTP method is not implemented")
+            raise Exception("HTTP method is not allowed or implemented")
 
         if request.status_code == 200:
             '''for item in request:
