@@ -39,7 +39,8 @@ class st_auth:
         elif http_error_code == 403 and int_error_code == 7:
             return(st_api.ST_INT_API_ERRORS("7"))
         #   Otherwise print an error
-        elif ((http_error_code not in st_api.HTTP_ERRORS) and (int_error_code not in st_api.ST_INT_API_ERRORS))
+        else:
+            if ((http_error_code not in st_api.HTTP_ERRORS) and (int_error_code not in st_api.ST_INT_API_ERRORS)):
             print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
 
     def get_oauth_token(self, st_ip, st_port, client_host):
