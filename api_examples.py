@@ -6,7 +6,7 @@ ST_IP = "192.168.50.22"
 ST_PORT = "9090"
 CLIENT_HOST = "192.168.50.19"   # "10.10.200.2"
 
-st = client.st_auth()   #   Create an instance of class
+st = client.securetower()   #   Create an instance of class
 
 #   First, we have to register out custom service on SecureTower server
 secret_key = st.server_register(ST_IP, ST_PORT, CLIENT_HOST)
