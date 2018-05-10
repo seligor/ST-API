@@ -163,14 +163,14 @@ class securetower:
         if http_error_code == 401 and int_error_code == 5:
             print(self.ST_INT_API_ERRORS("5"))
         elif http_error_code == 401 and int_error_code == 13:
-            print(ST_INT_API_ERRORS("13"))
+            print(self.ST_INT_API_ERRORS("13"))
         elif http_error_code == 401 and int_error_code == 14:
-            return(ST_INT_API_ERRORS("14"))
+            return(self.ST_INT_API_ERRORS("14"))
         elif http_error_code == 401 and int_error_code == 15:
-            return(ST_INT_API_ERRORS("15"))
+            return(self.ST_INT_API_ERRORS("15"))
         elif http_error_code == 403 and int_error_code == 7:
-            return(ST_INT_API_ERRORS("7"))
+            return(self.ST_INT_API_ERRORS("7"))
         #   Otherwise print an error
         else:
-            if ((http_error_code not in HTTP_ERRORS) and (int_error_code not in ST_INT_API_ERRORS)):
+            if ((http_error_code not in self.HTTP_ERRORS) and (int_error_code not in self.ST_INT_API_ERRORS)):
                 print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
