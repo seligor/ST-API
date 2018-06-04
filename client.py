@@ -10,9 +10,55 @@ from requests.auth import HTTPBasicAuth
 CLIENT_ID = "custom_service"
 pp = pprint.PrettyPrinter(indent=3)
 
-#   Classes
+class Auth():
+    def server_register(self, st_ip, st_port, client_host):      # User service register function
 
-class securetower:
+        register_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/register"
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = {'client_id': CLIENT_ID, 'client_host': client_host}
+        request = requests.post(register_url, headers=headers, data=payload)
+
+        #   Check for HTTP 200 - if it's okay then return secret key
+        if request.status_code == 200:
+            json_data = json.loads(request.content)
+            return(json_data['secret_key'])
+        elif request.status_code == 409:
+            print("Client already registered on this host")
+        else:
+            print("Error: ", str(request.status_code), json.loads(request.content))
+
+    def get_oauth_token(self, st_ip, st_port, client_host, secret_key):
+
+        token_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/token"
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = {'grant_type': 'client_credentials', 'client_host': client_host}
+        BASE64_CRED = HTTPBasicAuth(CLIENT_ID, secret_key)
+        #   TODO:   check if token already exists then use that token
+        request = requests.post(token_url, auth=BASE64_CRED, data=payload, headers=headers)
+
+        if request.status_code == 200:    #   Check for HTTP 200 - if it's okay then return JWT token
+            json_data = json.loads(request.content)
+            return(json_data['access_token'])
+        else:
+            print("Error while getting token: ", str(request.status_code), json.loads(request.content))
+            #print(self.api_error_handler(request.status_code, request.content))
+    
+    def check_token(self, st_ip, st_port, token):
+
+        check_token_url =  "http://" + st_ip + ":" + st_port + "/oauth/check_token"
+        headers = {'Content-Type': "application/x-www-form-urlencoded",
+               'Authorization': "Bearer " + token,
+               }
+        request = requests.post(check_token_url, headers=headers)
+
+        if request.status_code == 200:
+            return "AUTHORIZED"
+        elif request.status_code == 401:
+            return "UNAUTHORIZED"
+        else:
+            return  "UNKNOWN ERROR"
+
+class Service:
 
     def __init__(self):
 
@@ -88,76 +134,8 @@ class securetower:
         "14": "UserTokenExpired. Token has been expired.",
         "15": "UserTokenInvalidSignature. Token digital signature is not valid.",
         }
-
-    def server_register(self, st_ip, st_port, client_host):      # User service register function
-
-        register_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/register"
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {'client_id': CLIENT_ID, 'client_host': client_host}
-        request = requests.post(register_url, headers=headers, data=payload)
-
-        #   Check for HTTP 200 - if it's okay then return secret key
-        if request.status_code == 200:
-            json_data = json.loads(request.content)
-            return(json_data['secret_key'])
-        elif request.status_code == 409:
-            print("Client already registered on this host")
-        else:
-            print("Error: ", str(request.status_code), json.loads(request.content))
-
-    def get_oauth_token(self, st_ip, st_port, client_host, secret_key):
-
-        token_url =  "http://" + st_ip + ":" + st_port + "/api/v1/oauth2/token"
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {'grant_type': 'client_credentials', 'client_host': client_host}
-        BASE64_CRED = HTTPBasicAuth(CLIENT_ID, secret_key)
-        #   TODO:   check if token already exists then use that token
-        request = requests.post(token_url, auth=BASE64_CRED, data=payload, headers=headers)
-
-        if request.status_code == 200:    #   Check for HTTP 200 - if it's okay then return JWT token
-            json_data = json.loads(request.content)
-            return(json_data['access_token'])
-        else:
-            print("Error while getting token: ", str(request.status_code), json.loads(request.content))
-            #print(self.api_error_handler(request.status_code, request.content))
     
-    def check_token(self, st_ip, st_port, token):
-
-        check_token_url =  "http://" + st_ip + ":" + st_port + "/oauth/check_token"
-        headers = {'Content-Type': "application/x-www-form-urlencoded",
-               'Authorization': "Bearer " + token,
-               }
-        request = requests.post(check_token_url, headers=headers)
-
-        if request.status_code == 200:
-            return "AUTHORIZED"
-        elif request.status_code == 401:
-            return "UNAUTHORIZED"
-        else:
-            return  "UNKNOWN ERROR"
-
-    def request(self, st_ip, st_port, token, resource_uri, http_method, http_payload=None, offset=None, limit=None):
-        #   TODO:   support offset and limit args
-        request_url = "http://" + st_ip + ":" + st_port + "/api/v1" + resource_uri
-        headers = {'Content-Type': "application/x-www-form-urlencoded",
-               'Authorization': "Bearer " + token,
-               }
-
-        if http_method == "GET":
-            request = requests.get(request_url, headers=headers)
-        elif http_method == "POST":
-            request = requests.post(request_url, headers=headers, data=http_payload)
-        else:
-            raise Exception("HTTP method is not allowed or implemented")
-
-        if request.status_code == 200:
-            '''for item in request:
-                print(item)'''
-            pp.pprint(json.loads(request.content))
-        else:
-            print("Error: ", str(request.status_code), json.loads(request.content))
-
-    def api_error_handler(self, http_error_code, int_error_code):
+    def error_handler(self, http_error_code, int_error_code):
         # pass    #   TODO:   make API HTTP error codes and internal error codes handler
 
         if http_error_code == 401 and int_error_code == 5:
@@ -174,3 +152,48 @@ class securetower:
         else:
             if ((http_error_code not in self.HTTP_ERRORS) and (int_error_code not in self.ST_INT_API_ERRORS)):
                 print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
+
+    def request(self, st_ip, st_port, token, resource_uri, http_method='GET', http_payload=None, offset=None, limit=None):
+    
+        #   TODO:   support offset and limit args
+        request_url = "http://" + st_ip + ":" + st_port + "/api/v1/" + resource_uri
+        headers = {'Content-Type': "application/x-www-form-urlencoded",
+               'Authorization': "Bearer " + token,
+               }
+
+        if http_method == "GET":
+            request = requests.get(request_url, headers=headers)
+        elif http_method == "POST":
+            request = requests.post(request_url, headers=headers, data=http_payload)
+        else:
+            raise Exception("HTTP method is not allowed or implemented")
+
+        if request.status_code == 200:
+            '''for item in request:
+                print(item)'''
+            #pp.pprint(json.loads(request.content))
+            return(json.loads(request.content))
+        else:
+            print("Error: ", str(request.status_code), json.loads(request.content))
+
+class Search(Service):
+
+    def get_collections(self, st_ip, st_port, token):
+        collections_url = "http://" + st_ip + ":" + st_port + "/api/v1/data/collections"
+        headers = {'Content-Type': "application/x-www-form-urlencoded",
+                   'Authorization': "Bearer " + token }
+    def collections(self, collection):
+        return self.request(self.st_port, self.st_ip, self.token, collection)
+
+class Upload():
+    def upload(self, st_ip, st_port, token, collection, http_payload):
+        upload_url = "http://" + st_ip + ":" + st_port + "/api/v1/upload/" + collection
+        headers = {'Content-Type': 'application/octet-stream',  #   OR {'Content-Type': 'application/x-protobuf'}
+               'Authorization': "Bearer " + token,
+               }
+        request = requests.post(upload_url, headers=headers, data=http_payload.SerializeToString())
+
+class Api:
+    def __init__(self, **settings):
+        self._settings = settings
+        # TODO 
