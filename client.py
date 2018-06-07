@@ -38,7 +38,10 @@ class Auth():
 
         if request.status_code == 200:    #   Check for HTTP 200 - if it's okay then return JWT token
             json_data = json.loads(request.content)
-            return(json_data['access_token'])
+            if json_data['access_token'] != None:
+                return(json_data['access_token'])
+            else:
+                print("Something went wrong, the token is null")    # TODO: avoid the sutiation when token is None or Null or correctly handle the error (Try, Raise, whatever)
         else:
             print("Error while getting token: ", str(request.status_code), json.loads(request.content))
             #print(self.api_error_handler(request.status_code, request.content))
@@ -153,20 +156,20 @@ class Service:
             if ((http_error_code not in self.HTTP_ERRORS) and (int_error_code not in self.ST_INT_API_ERRORS)):
                 print("Unknown error: ", str(http_error_code), json.loads(int_error_code))
 
-    def request(self, st_ip, st_port, token, resource_uri, http_method='GET', http_payload=None, offset=None, limit=None):
-    
+    def request(self, st_ip, st_port, token, resource, http_method='GET', http_payload=None, offset=None, limit=None):
+        #   Abstract class
         #   TODO:   support offset and limit args
-        request_url = "http://" + st_ip + ":" + st_port + "/api/v1/" + resource_uri
+        url = "http://" + st_ip + ":" + st_port + "/api/v1/" + resource
         headers = {'Content-Type': "application/x-www-form-urlencoded",
-               'Authorization': "Bearer " + token,
-               }
+                   'Authorization': "Bearer " + token,
+                  }
 
         if http_method == "GET":
-            request = requests.get(request_url, headers=headers)
-        elif http_method == "POST":
-            request = requests.post(request_url, headers=headers, data=http_payload)
+            request = requests.get(url, headers=headers)
+        elif http_method == "POST" and http_payload is not None:
+            request = requests.post(url, headers=headers, data=http_payload)
         else:
-            raise Exception("HTTP method is not allowed or implemented")
+            raise Exception("HTTP method is not allowed or implemented or http body is empty")
 
         if request.status_code == 200:
             '''for item in request:
@@ -179,11 +182,12 @@ class Service:
 class Search(Service):
 
     def get_collections(self, st_ip, st_port, token):
-        collections_url = "http://" + st_ip + ":" + st_port + "/api/v1/data/collections"
-        headers = {'Content-Type': "application/x-www-form-urlencoded",
-                   'Authorization': "Bearer " + token }
-    def collections(self, collection):
-        return self.request(self.st_port, self.st_ip, self.token, collection)
+        collections_url = "data/collections"
+        return self.request(st_ip, st_port, token, collections_url)
+
+    def collection_request(self, st_ip, st_port, token, collection):
+        resource = "data/collections/" + collection
+        return self.request(st_ip, st_port, token, resource)
 
 class Upload():
     def upload(self, st_ip, st_port, token, collection, http_payload):
