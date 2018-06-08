@@ -13,13 +13,14 @@ pp = pprint.PrettyPrinter(indent=3)
 
 #   First, we have to register out custom service on SecureTower server
 secret_key = auth.server_register(ST_IP, ST_PORT, CLIENT_HOST)
+print("Secret key: ", secret_key)
 
 #   Second, we have to get the token
 oauth_token = auth.get_oauth_token(ST_IP, ST_PORT, CLIENT_HOST, secret_key)
 print("Your token is: ", oauth_token)
 
-pp.pprint(search.get_collections(ST_IP, ST_PORT, oauth_token))
-pp.pprint(search.collection_request)
+pp.pprint("Collections list: " + search.get_collections(ST_IP, ST_PORT, oauth_token))
+pp.pprint("Collection data: " + search.collection_request(ST_IP, ST_PORT, oauth_token, 'ftp'))
 
 #   Then we can make a requests with the token
 

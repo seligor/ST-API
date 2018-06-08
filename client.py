@@ -24,6 +24,7 @@ class Auth():
             return(json_data['secret_key'])
         elif request.status_code == 409:
             print("Client already registered on this host")
+            #   TODO: Use current token
         else:
             print("Error: ", str(request.status_code), json.loads(request.content))
 
@@ -50,16 +51,23 @@ class Auth():
 
         check_token_url =  "http://" + st_ip + ":" + st_port + "/oauth/check_token"
         headers = {'Content-Type': "application/x-www-form-urlencoded",
-               'Authorization': "Bearer " + token,
-               }
+                   'Authorization': "Bearer " + token,
+                  }
         request = requests.post(check_token_url, headers=headers)
 
         if request.status_code == 200:
             return "AUTHORIZED"
         elif request.status_code == 401:
-            return "UNAUTHORIZED"
+            if json.loads(request.content) == "UserTokenInvalid = 13":
+                raise ValueError("Token Invalid")
+            elif json.loads(request.content) == "UserTokenExpired = 14":
+                raise ValueError("Token has been expired")
+            elif json.loads(request.content) == "UserTokenInvalidSignature = 15":
+                raise ValueError("Token signature is invalid")
+            else:
+                return "UNAUTHORIZED"
         else:
-            return  "UNKNOWN ERROR"
+            return "UNKNOWN ERROR"
 
 class Service:
 
@@ -189,12 +197,41 @@ class Search(Service):
         resource = "data/collections/" + collection
         return self.request(st_ip, st_port, token, resource)
 
+class Statistics(Service):
+    pass
+    #   TODO:   search statistics API - 
+    #   https://stdoc.pg.local/pages/viewpage.action?pageId=29458994
+    #   https://stdoc.pg.local/pages/viewpage.action?pageId=29459006
+
+class Licensing(Service):
+    pass
+    #   TODO:   https://stdoc.pg.local/pages/viewpage.action?pageId=13241709
+
+class DFP(Service):
+    pass
+    #   TODO:   DFP API - https://stdoc.pg.local/pages/viewpage.action?pageId=16778175
+
+class Stamps(Service):
+    pass
+    #   TODO:   Stamps API - https://stdoc.pg.local/pages/viewpage.action?pageId=20021897
+
+class Configure(Service):
+    pass
+    #   TODO:   Configure API - https://stdoc.pg.local/pages/viewpage.action?pageId=4128865
+
+class Extras(Service):
+    pass
+    #   TODO:   Services - https://stdoc.pg.local/pages/viewpage.action?pageId=4128877
+
+class Categorizer(Service):
+    pass
+    #   TODO:   Site categorizer API - https://stdoc.pg.local/pages/viewpage.action?pageId=16778493
 class Upload():
     def upload(self, st_ip, st_port, token, collection, http_payload):
         upload_url = "http://" + st_ip + ":" + st_port + "/api/v1/upload/" + collection
         headers = {'Content-Type': 'application/octet-stream',  #   OR {'Content-Type': 'application/x-protobuf'}
-               'Authorization': "Bearer " + token,
-               }
+                   'Authorization': "Bearer " + token,
+                  }
         request = requests.post(upload_url, headers=headers, data=http_payload.SerializeToString())
 
 class Api:
